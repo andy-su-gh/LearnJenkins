@@ -1,0 +1,85 @@
+# shell commands for jenkins
+
+
+# -----------------------------
+# prepare thrid compones
+# -----------------------------
+#npm install react-native-imei --save
+#react-native link react-native-imei
+#npm install react-native-exit-app --save
+#react-native link react-native-exit-app
+#npm i react-native-image-crop-picker@0.24.1 --save
+#react-native link react-native-image-crop-picker
+#npm install react-native-video --save
+#react-native link react-native-video
+#npm install react-native-sound --save
+#react-native link react-native-sound
+#npm install crypto-js --save
+#npm install react-native-storage
+#npm install @react-native-community/async-storage
+#react-native link @react-native-community/async-storage
+#npm i react-native-image-zoom-viewer --save
+#npm install @react-native-community/art --save
+#react-native link @react-native-community/art
+#npm install react-native-progress --save
+cd ios
+pod install
+cd ..
+
+# -----------------------------
+# store variable from propfile
+# -----------------------------
+#if [ -f propfile.txt; ] then
+#rm propfile.txt
+#fi
+
+# -----------------------------
+# set other values based on target configuration
+# -----------------------------
+
+# https://www.pgyer.com/LHRT
+# "LHRT" is the uri
+# git branch
+if [ ${TargetConfiguration} == 'smltQaConfig' ]
+then
+	GitBranchValue='test'
+    PgyerUriValue='aaaa'
+    MarketingVersionValue='666.0.18'
+elif [ ${TargetConfiguration} == 'smltDevConfig' ] 
+then
+	GitBranchValue='test'
+    PgyerUriValue='bbbb'
+    MarketingVersionValue='777.0.18'
+else
+	GitBranchValue='test'
+    PgyerUriValue='cccc'
+    MarketingVersionValue='555.0.18'
+fi
+
+
+echo "MarketingVersion=${MarketingVersionValue}
+PgyerUri=${PgyerUriValue}" > propfile.txt
+
+# -----------------------------
+# clean workspace/build folder, due to it make android build failed :-(
+# -----------------------------
+rm -rf ${WORKSPACE}/build
+
+# -----------------------------
+# inject target configuration
+# -----------------------------
+echo "import {
+  devConfig,
+  qaConfig,
+  sitConfig,
+  uatConfig,
+  petConfig,
+  prdConfig,
+  smltQaConfig,
+  smltDevConfig,
+} from 'src/shared/configs';
+
+const appConfig = ${TargetConfiguration};
+export default appConfig;
+
+" > ${WORKSPACE}/src/shared/appConfig.js
